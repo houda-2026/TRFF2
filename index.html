@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-lnwEalXrvwBPAvzDFnUEoP+QG5HOUD0jV8Gm8+4D80c=' https://cdn.sheetjs.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Atlas Distribution SA · TFT 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Inter:wght@300;400&display=swap">
+<style>
+/* ===== DESIGN SYSTEM (écrit une seule fois) ===== */
+:root{
+  --bg:#000000; --card:#050505; --txt:#E0AE28; --main:#FFFFFF; --acc:#E0AE28; --grenat:#A3263B;
+  --ok:#4CC38A; --warn:#F5963A; --bad:#FF6B6B; --none:#B8B8B8;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px;
+  --r1:12px; --r2:24px; --r3:999px;
+  --edge:rgba(255,255,255,.10); --shine:rgba(255,255,255,.06);
+  --shadow:0 16px 48px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.08);
+  --f-title:'Cinzel',Georgia,serif; --f-body:'Inter',system-ui,sans-serif;
+  --t-title:40px; --t-sub:24px; --t-big:clamp(56px,7vw,104px); --t-text:16px; --t-cap:13px;
+  --rail:72px; --side:320px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark}
+body{background:var(--bg);color:var(--txt);font:300 var(--t-text)/1.55 var(--f-body);min-height:100vh;overflow-x:hidden}
+h1{font:400 var(--t-title)/1.15 var(--f-title);color:var(--main);letter-spacing:.02em;overflow-wrap:anywhere}
+h2{font:400 var(--t-sub)/1.25 var(--f-title);color:var(--main);overflow-wrap:anywhere}
+h3{font:400 18px/1.3 var(--f-title);color:var(--main)}
+a{color:var(--acc)} p{max-width:75ch}
+.cap{font-size:var(--t-cap);color:var(--txt);opacity:.85}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+.num{font-family:var(--f-title);font-weight:400;font-variant-numeric:tabular-nums;color:var(--main)}
+.num .u,.u{color:var(--acc)}
+/* fond noir « liquid » */
+#bg{position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(60% 50% at 20% 20%,#1b1b1b 0%,transparent 60%),
+  radial-gradient(50% 60% at 80% 70%,#151515 0%,transparent 60%),
+  radial-gradient(40% 40% at 60% 10%,#101010 0%,transparent 60%),#000;
+  background-size:160% 160%;animation:liquid 26s ease-in-out infinite alternate}
+@keyframes liquid{0%{background-position:0% 0%}100%{background-position:100% 100%}}
+#fx{position:fixed;inset:0;z-index:-1;width:100%;height:100%;pointer-events:none}
+/* verre noir laqué */
+.card{position:relative;background:linear-gradient(180deg,var(--shine),rgba(255,255,255,0) 28%),rgba(5,5,5,.86);border:1px solid var(--edge);border-radius:var(--r2);padding:var(--s3);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);min-width:0;transition:transform .25s,border-color .25s}
+.card::before{content:"";position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent)}
+.kc:hover,.kc:focus-within{transform:translateY(-4px);border-color:rgba(224,174,40,.45)}
+.flash{animation:flash 2s ease-out}
+@keyframes flash{0%,60%{box-shadow:0 0 0 2px var(--acc),0 0 36px rgba(224,174,40,.5)}100%{box-shadow:var(--shadow)}}
+/* mise en page */
+#app{display:flex;min-height:100vh}
+aside{position:fixed;z-index:20;top:0;bottom:0;left:0;width:var(--rail);overflow:hidden auto;background:rgba(3,3,3,.92);border-right:1px solid var(--edge);backdrop-filter:blur(18px);transition:width .25s;padding:var(--s2) 14px}
+aside:hover,aside:focus-within{width:var(--side)}
+aside .lbl,aside .full,aside .pill .w{opacity:0;visibility:hidden;transition:opacity .2s}
+aside:hover .lbl,aside:focus-within .lbl,aside:hover .full,aside:focus-within .full,aside:hover .pill .w,aside:focus-within .pill .w{opacity:1;visibility:visible}
+aside .lbl,aside .pill .w{white-space:nowrap} aside .full{display:none;white-space:normal;overflow-wrap:anywhere} aside:hover .full,aside:focus-within .full{display:block}
+aside .mini{display:flex} aside:hover .mini,aside:focus-within .mini{display:none}
+.brand{display:flex;align-items:center;gap:var(--s2);height:48px;margin-bottom:var(--s2);color:var(--main);font:400 18px var(--f-title);letter-spacing:.12em}
+.nl{display:flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 10px;border-radius:var(--r1);color:var(--txt);text-decoration:none;font-size:15px}
+.nl:hover{background:rgba(255,255,255,.06)} .nl[aria-current=page]{background:rgba(224,174,40,.14);color:var(--main)}
+.nl svg,.ic{flex:none;width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.fam{display:flex;align-items:center}
+.fam .nl{flex:1;min-width:0} .fam .nl span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp{flex:none;width:36px;height:36px;background:none;border:0;color:var(--acc);cursor:pointer;border-radius:8px;font-size:14px}
+.exp[aria-expanded=true]{transform:rotate(90deg)}
+.sub{list-style:none;margin:0 0 var(--s1) 36px} .sub[hidden]{display:none}
+.sub .nl{min-height:40px;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:1;padding:5px 9px;border-radius:var(--r3);border:1px solid currentColor;white-space:nowrap}
+.pill.vert{color:var(--ok)} .pill.orange{color:var(--warn)} .pill.rouge{color:var(--bad)} .pill.none{color:var(--none)}
+.nl .pill{margin-left:auto}
+main{flex:1;min-width:0;margin-left:var(--rail);padding:var(--s5) var(--s5) var(--s6);max-width:1500px}
+.crumb{font-size:var(--t-cap);margin-bottom:var(--s2);display:flex;flex-wrap:wrap;gap:var(--s1)} .crumb a{text-decoration:none}
+.page{display:grid;gap:var(--s4)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s3)}
+.stat .num{font-size:clamp(32px,4vw,48px);line-height:1.1;display:block;margin-top:var(--s1)}
+.kc .big{font:400 var(--t-big)/1.05 var(--f-title);color:var(--main);margin:var(--s2) 0 var(--s1);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kc .big .u{font-size:var(--t-sub);margin-left:var(--s1)}
+.kc .sub2{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);align-items:center}
+.kc .hd{display:flex;justify-content:space-between;gap:var(--s1);align-items:flex-start}
+.kc .hd a{text-decoration:none;color:var(--main)}
+.info{flex:none;background:none;border:1px solid var(--edge);color:var(--acc);width:28px;height:28px;border-radius:50%;cursor:help;font:400 14px var(--f-title)}
+svg.spark{display:block;width:100%;height:40px;margin-top:var(--s2)}
+.chart{width:100%;height:380px} .chart.s{height:260px} .chart.t{height:300px}
+.msg{font-size:var(--t-sub);font-weight:300;color:var(--main);line-height:1.4;max-width:60ch}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font:400 14px var(--f-title);color:var(--acc)} td.n,th.n{text-align:right;white-space:nowrap}
+td.n{font-family:var(--f-title);font-variant-numeric:tabular-nums;color:var(--main)}
+tr.tot td{font-weight:700;background:rgba(224,174,40,.07)} tr.sec td{color:var(--acc);font-family:var(--f-title);padding-top:var(--s2)}
+.btn{display:inline-flex;align-items:center;gap:var(--s1);min-height:44px;padding:0 var(--s3);border-radius:var(--r3);border:1px solid var(--edge);background:rgba(255,255,255,.05);color:var(--main);font:400 15px var(--f-body);cursor:pointer;transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.btn.p{background:linear-gradient(180deg,#F1C657,var(--acc));color:#000;border-color:var(--acc);font-weight:400}
+.btn.sm{min-height:36px;padding:0 var(--s2);font-size:13px}
+.sk{border-radius:var(--r2);height:180px;background:linear-gradient(90deg,#0b0b0b 0%,#1a1a1a 50%,#0b0b0b 100%);background-size:200% 100%;animation:sk 1.6s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.drop{border:1px dashed rgba(224,174,40,.5);border-radius:var(--r2);padding:var(--s5);text-align:center;display:grid;gap:var(--s2);justify-items:center}
+.drop.on{background:rgba(224,174,40,.08)}
+/* panneau de synchronisation */
+.sync{margin-top:var(--s2);padding:12px;border:1px solid var(--edge);border-radius:var(--r1);background:rgba(255,255,255,.03);display:grid;gap:var(--s1);font-size:13px}
+.sw{position:relative;width:44px;height:24px;border-radius:var(--r3);border:0;background:#4a4a4a;cursor:pointer;flex:none;transition:background .2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw[aria-checked=true]{background:var(--acc)} .sw[aria-checked=true]::after{transform:translateX(20px)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:var(--s1)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--none)}
+.st-ok .dot{background:var(--ok);animation:pulse 2s infinite} .st-read .dot{background:#4DA3FF} .st-recon .dot{background:var(--warn)} .st-err .dot{background:var(--bad)}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(76,195,138,.0);opacity:.5}}
+.sync .btn{width:100%;justify-content:center;white-space:normal;text-align:center}
+.sync .det{display:grid;gap:4px;opacity:.9} .sync [hidden]{display:none}
+#mband,#tabs{display:none}
+#vol{display:none}
+#toasts{position:fixed;z-index:60;right:var(--s2);bottom:var(--s2);display:grid;gap:var(--s1);max-width:min(420px,calc(100vw - 32px))}
+.toast{background:rgba(10,10,10,.96);border:1px solid var(--edge);border-left:3px solid var(--acc);border-radius:var(--r1);padding:12px 16px;color:var(--main);box-shadow:var(--shadow);font-size:14px}
+.toast.err{border-left-color:var(--bad)}
+.reco{display:grid;grid-template-columns:auto 1fr;gap:var(--s2);align-items:start}
+.reco .num{font-size:var(--t-sub)}
+@media (max-width:1100px){main{padding:var(--s4) var(--s3) var(--s6)}}
+@media (max-width:760px){
+  :root{--t-title:40px}
+  aside{display:none}
+  main{margin-left:0;padding:132px var(--s2) 96px}
+  #bg{animation:none}
+  #mband{display:flex;flex-wrap:wrap;gap:var(--s1);align-items:center;position:fixed;z-index:30;top:0;left:0;right:0;padding:calc(8px + env(safe-area-inset-top)) var(--s2) 8px;background:rgba(3,3,3,.94);border-bottom:1px solid var(--edge);backdrop-filter:blur(14px)}
+  #mband .sync{margin:0;border:0;padding:0;background:none;width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1)}
+  #mband .full,#mband .mini{display:contents} #mband .det{display:none} #mband .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #mband .sync .btn{width:auto}
+  #tabs{display:flex;position:fixed;z-index:30;left:0;right:0;bottom:0;background:rgba(3,3,3,.96);border-top:1px solid var(--edge);padding:6px 8px calc(6px + env(safe-area-inset-bottom));backdrop-filter:blur(14px)}
+  #tabs button{flex:1;min-height:52px;background:none;border:0;color:var(--txt);font:300 12px var(--f-body);display:grid;justify-items:center;gap:2px;cursor:pointer}
+  #tabs button[aria-current=page]{color:var(--main)}
+  #vol.open{display:block;position:fixed;z-index:40;left:0;right:0;bottom:0;top:96px;overflow:auto;background:rgba(3,3,3,.98);border-top:1px solid var(--edge);border-radius:var(--r2) var(--r2) 0 0;padding:var(--s2) var(--s2) 96px}
+  #vol .lbl{opacity:1;visibility:visible}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .card{padding:var(--s2)} .chart{height:320px}
+  th,td{padding:8px 4px;font-size:14px}
+}
+@media (min-width:761px) and (max-width:1100px){.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}#fx{display:none}}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div><canvas id="fx" aria-hidden="true"></canvas>
+<div id="app">
+  <aside id="side" aria-label="Menu principal"></aside>
+  <header id="mband"></header>
+  <main id="main" tabindex="-1" aria-live="polite"></main>
+</div>
+<nav id="tabs" aria-label="Navigation"></nav>
+<div id="vol" role="dialog" aria-label="Familles et KPI"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<input type="file" id="imp" accept=".xlsx,.xlsm,.xls,.csv" hidden>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.1/echarts.min.js" crossorigin="anonymous"></script>
+<script data-app>
+'use strict';
+/* =====================================================================
+   1. CONFIGURATION · contrat de format et paramètres de l'application
+   ===================================================================== */
+const FORMAT_ATTENDU = {
+  onglets: { message: 'LISEZ-MOI', tft: 'TFT', kpi: 'KPI', controles: 'CONTROLES' },
+  // noms définis obligatoires → onglet attendu
+  noms: (() => {
+    const n = { STATUT_GLOBAL: 'CONTROLES', PARAM_PLAFOND: 'KPI' };
+    ['OT', 'IT', 'FT', 'V', 'T0', 'T1'].forEach(c => ['2027', '2026'].forEach(a => { n['TFT_' + c + '_' + a] = 'TFT'; }));
+    ['CONV', 'FCF', 'CCC', 'LEV', 'DSCR', 'DIV'].forEach(c => ['2027', '2026'].forEach(a => { n['KPI_' + c + '_' + a] = 'KPI'; }));
+    return n;
+  })(),
+  codesTFT: ['O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7', 'O8', 'O9', 'O10', 'O11', 'O12', 'OS', 'O13', 'OT', 'I1', 'I2', 'I3', 'IT', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'FT', 'V', 'T0', 'T1'],
+  codesKPI: ['K01', 'K02', 'K03', 'K04', 'K05', 'K06', 'K07', 'K08', 'K09', 'K10', 'K11', 'K12', 'K13', 'K14'],
+  // synonymes acceptés pour les en-têtes (comparés sans accents ni majuscules)
+  synonymes: { code: ['n°', 'ligne', 'code', 'no'], lib: ['libelle', 'kpi', 'parametre'], a27: ['2027'], a26: ['2026'] }
+};
+const LIMITES = { octets: 10 * 1024 * 1024, lignes: 50000, extensions: ['xlsx', 'xlsm', 'xls', 'csv'] };
+const INTERDITS = new Set(['__proto__', 'constructor', 'prototype']);
+const FAMILLES = [
+  { id: 'qualite', nom: 'Qualité du cash', kpis: ['K01', 'K02'], ic: 'drop' },
+  { id: 'cash', nom: 'Cash libre et investissements', kpis: ['K03', 'K04', 'K05'], ic: 'coin' },
+  { id: 'bfr', nom: 'BFR et cycle de cash', kpis: ['K06', 'K07', 'K08', 'K09'], ic: 'cycle' },
+  { id: 'dette', nom: 'Dette et solvabilité', kpis: ['K10', 'K11', 'K12', 'K13'], ic: 'scale' },
+  { id: 'actionnaires', nom: 'Actionnaires', kpis: ['K14'], ic: 'users' }
+];
+const CARTES_TFT = ['K01', 'K03', 'K09', 'K11', 'K13', 'K14'];
+const TOTAUX = new Set(['OT', 'IT', 'FT', 'V', 'T0', 'T1']);
+const OR = '#E0AE28', GRENAT = '#A3263B', BLANC = '#FFFFFF';
+const ICONES = {
+  tft: 'M4 20V10M10 20V4M16 20v-8M22 20H2', grille: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z', coin: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9 12h6M12 9v6',
+  cycle: 'M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4', scale: 'M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z',
+  users: 'M16 20v-2a4 4 0 0 0-8 0v2M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM22 20v-2a3 3 0 0 0-3-3M17 6a3 3 0 0 1 0 6',
+  upload: 'M12 16V4M7 9l5-5 5 5M4 20h16', down: 'M12 4v12M7 11l5 5 5-5M4 20h16', menu: 'M4 6h16M4 12h16M4 18h16'
+};
+
+/* =====================================================================
+   2. SÉCURITÉ · aucun texte du fichier n'est exécuté (createElement + textContent)
+   ===================================================================== */
+const EN_CADRE = (window.top !== window.self);          // page ouverte dans un autre site : on masque tout
+if (EN_CADRE) document.documentElement.style.display = 'none';
+class ErrUtil extends Error {}                           // message affichable, sans détail technique
+const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k of Object.keys(attrs || {})) {
+    const v = attrs[k]; if (v == null || v === false) continue;
+    if (k === 'class') e.className = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) { if (c == null || c === false) continue; e.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return e;
+}
+function sv(tag, attrs, ...kids) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k of Object.keys(attrs || {})) e.setAttribute(k, attrs[k]);
+  kids.forEach(c => e.append(c)); return e;
+}
+const icone = nom => sv('svg', { viewBox: '0 0 24 24', class: 'ic', 'aria-hidden': 'true' }, sv('path', { d: ICONES[nom] }));
+function vider(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+function garde(octets, nom) {                           // refuse tout fichier hors contrat
+  const ext = String(nom).split('.').pop().toLowerCase();
+  if (!LIMITES.extensions.includes(ext)) throw new ErrUtil('Format refusé : utilisez un fichier .xlsx, .xls ou .csv.');
+  if (octets.byteLength > LIMITES.octets) throw new ErrUtil('Fichier trop volumineux : 10 Mo maximum.');
+  const b = new Uint8Array(octets.slice(0, 8));
+  const zip = b[0] === 0x50 && b[1] === 0x4B, ole = b[0] === 0xD0 && b[1] === 0xCF;
+  if ((ext === 'xlsx' || ext === 'xlsm') && !zip) throw new ErrUtil('Ce fichier n’est pas un vrai classeur Excel.');
+  if (ext === 'xls' && !ole && !zip) throw new ErrUtil('Ce fichier n’est pas un vrai classeur Excel.');
+  if (ext === 'csv' && new Uint8Array(octets.slice(0, 2048)).includes(0)) throw new ErrUtil('Ce fichier n’est pas un fichier CSV lisible.');
+}
+function protegeExport(v) { return (typeof v === 'string' && /^[=+\-−@\t\r\n]/.test(v)) ? "'" + v : v; }   // formules piégées neutralisées
+
+/* =====================================================================
+   3. LECTURE DES DONNÉES · tout passe par FORMAT_ATTENDU
+   ===================================================================== */
+let COMPTE_ERREURS = 0, FORMULE_SANS_VALEUR = false;
+function valeurCellule(c) {
+  if (!c) return null;
+  if (c.t === 'e') { COMPTE_ERREURS++; return null; }       // #N/A, #DIV/0! : traités comme vides
+  if (c.v === undefined || c.v === null) { if (c.f) FORMULE_SANS_VALEUR = true; return null; }
+  return c.v;
+}
+function nombre(v) {                                       // « 1 234,56 », « 1,234.56 », « (1 234) », « 12 % »
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  if (typeof v !== 'string') return null;
+  let s = v.replace(/[\s\u00a0\u202f]/g, '').replace(/−/g, '-'), neg = false, pct = false;
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (s.endsWith('%')) { pct = true; s = s.slice(0, -1); }
+  if (!/^[-+]?[\d.,]+$/.test(s)) return null;
+  const vir = s.lastIndexOf(','), pt = s.lastIndexOf('.');
+  if (vir >= 0 && pt >= 0) s = vir > pt ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  else if (vir >= 0) s = s.replace(',', '.');
+  let n = parseFloat(s); if (!isFinite(n)) return null;
+  if (neg) n = -n; if (pct) n /= 100; return n;
+}
+function trouveOnglet(wb, nom) { const n = norm(nom); const i = wb.SheetNames.findIndex(x => norm(x) === n); return i < 0 ? null : wb.Sheets[wb.SheetNames[i]]; }
+function grille(ws) {
+  const rg = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+  if (rg.e.r + 1 > LIMITES.lignes) throw new ErrUtil('Fichier refusé : plus de 50 000 lignes.');
+  const g = [];
+  for (let r = 0; r <= rg.e.r; r++) { const ligne = []; for (let c = 0; c <= Math.min(rg.e.c, 30); c++) ligne.push(valeurCellule(ws[XLSX.utils.encode_cell({ r, c })])); g.push(ligne); }
+  return g;
+}
+function lireTableaux(g) {                                 // tableaux à code en colonne B (ou synonyme) ; en-têtes repérés par leur contenu
+  const T = []; let cur = null;
+  g.forEach(row => {
+    const idx = row.findIndex(v => typeof v === 'string' && FORMAT_ATTENDU.synonymes.code.includes(norm(v)));
+    if (idx >= 0 && row.filter(v => v != null && v !== '').length >= 3) {
+      const head = Object.create(null);
+      row.forEach((v, c) => { if (typeof v === 'string' && !INTERDITS.has(v.trim())) head[norm(v)] = c; });
+      cur = { codeCol: idx, head, rows: [] }; T.push(cur); return;
+    }
+    if (!cur) return;
+    const code = row[cur.codeCol];
+    if (typeof code === 'string' && /^[A-Za-z]{1,4}\d{0,2}$/.test(code.trim())) cur.rows.push({ code: code.trim().toUpperCase(), row });
+    else if (code == null || code === '') { if (row.some(v => v != null && v !== '')) cur.rows.push({ code: null, row }); }
+    else cur = null;
+  });
+  return T;
+}
+function bloc(g, prefixe) {                                // tableaux sans code (radar, entonnoir…) repérés par leur titre en colonne C
+  for (let r = 0; r < g.length; r++) {
+    if (typeof g[r][2] === 'string' && norm(g[r][2]).startsWith(prefixe)) {
+      const head = Object.create(null); g[r].forEach((v, c) => { if (typeof v === 'string' && !INTERDITS.has(v.trim())) head[norm(v)] = c; });
+      const rows = []; for (let k = r + 1; k < g.length && g[k][2] != null && g[k][2] !== ''; k++) rows.push(g[k]);
+      return { head, rows };
+    }
+  }
+  return null;
+}
+function nomsDefinis(wb) {
+  const m = new Map();
+  ((wb.Workbook && wb.Workbook.Names) || []).forEach(n => { if (n && n.Name && n.Ref && !INTERDITS.has(n.Name)) m.set(String(n.Name).toUpperCase(), n.Ref); });
+  return m;
+}
+function valeurNom(wb, noms, nom) {
+  const ref = noms.get(nom); if (!ref) return undefined;
+  const m = /^'?([^'!]+)'?!\$?([A-Z]+)\$?(\d+)$/.exec(ref); if (!m) return undefined;
+  const ws = trouveOnglet(wb, m[1]); if (!ws) return undefined;
+  const v = valeurCellule(ws[m[2] + m[3]]); return v;
+}
+function col(T, nom) { const i = T.head[norm(nom)]; return i == null ? -1 : i; }
+function extraire(wb) {
+  COMPTE_ERREURS = 0; FORMULE_SANS_VALEUR = false;
+  const ong = FORMAT_ATTENDU.onglets, manque = [];
+  const wsM = trouveOnglet(wb, ong.message), wsT = trouveOnglet(wb, ong.tft), wsK = trouveOnglet(wb, ong.kpi), wsC = trouveOnglet(wb, ong.controles);
+  [[wsM, ong.message], [wsT, ong.tft], [wsK, ong.kpi], [wsC, ong.controles]].forEach(([w, n]) => { if (!w) manque.push('onglet « ' + n + ' »'); });
+  if (manque.length) throw new ErrUtil('Élément manquant : ' + manque.join(', ') + '.');
+  const noms = nomsDefinis(wb), nv = new Map();
+  Object.keys(FORMAT_ATTENDU.noms).forEach(n => {
+    const v = valeurNom(wb, noms, n);
+    if (v === undefined) manque.push('nom défini « ' + n + ' » (onglet ' + FORMAT_ATTENDU.noms[n] + ')'); else nv.set(n, v);
+  });
+  const gT = grille(wsT), gK = grille(wsK), gC = grille(wsC), gM = grille(wsM);
+  const tabT = lireTableaux(gT).find(t => t.rows.some(r => r.code === 'OT') && col(t, '2027') >= 0);
+  const tabK = lireTableaux(gK);
+  const tKpi = tabK.find(t => col(t, 'Feu 2027') >= 0), tDic = tabK.find(t => col(t, 'Définition') >= 0), tSeu = tabK.find(t => col(t, 'Seuil vert') >= 0), tPar = tabK.find(t => col(t, 'Valeur') >= 0 && col(t, 'Paramètre') >= 0);
+  if (!tabT) manque.push('tableau TFT (codes O1 à T1, onglet TFT)');
+  if (!tKpi) manque.push('tableau des KPI (colonnes « Feu 2027 », onglet KPI)');
+  if (!tDic) manque.push('dictionnaire des KPI (onglet KPI)');
+  if (!tSeu) manque.push('seuils des KPI (onglet KPI)');
+  const tft = new Map(), tftLignes = [];
+  if (tabT) {
+    const c27 = col(tabT, '2027'), c26 = col(tabT, '2026'), cL = col(tabT, 'Libellé'), cN = col(tabT, 'Note'); let fini = false;
+    tabT.rows.forEach(r => {
+      if (fini) return;
+      const lib = typeof r.row[cL] === 'string' ? r.row[cL].trim() : '';
+      if (r.code) { const o = { code: r.code, lib, v27: nombre(r.row[c27]), v26: nombre(r.row[c26]), note: r.row[cN] }; tft.set(r.code, o); tftLignes.push(o); if (r.code === 'T1') fini = true; }
+      else if (lib) tftLignes.push({ code: null, lib });
+    });
+    FORMAT_ATTENDU.codesTFT.forEach(c => { if (!tft.has(c)) manque.push('code de ligne « ' + c + ' » (onglet TFT)'); });
+  }
+  const kpi = [];
+  if (tKpi && tDic && tSeu) {
+    const idx = (t, code) => t.rows.find(r => r.code === code);
+    FORMAT_ATTENDU.codesKPI.forEach(code => {
+      const a = idx(tKpi, code), d = idx(tDic, code), s = idx(tSeu, code);
+      if (!a) { manque.push('code de ligne « ' + code + ' » (onglet KPI)'); return; }
+      const lib = String(a.row[col(tKpi, 'KPI')] || '').trim(), dr = d ? d.row : [], sr = s ? s.row : [];
+      kpi.push({ code, lib, nom: lib.replace(/\s*\([^)]*\)\s*$/, ''), formule: (/\(([^)]*)\)\s*$/.exec(lib) || [])[1] || '',
+        v27: nombre(a.row[col(tKpi, '2027')]), v26: nombre(a.row[col(tKpi, '2026')]), var: nombre(a.row[col(tKpi, 'Variation')]),
+        f27: a.row[col(tKpi, 'Feu 2027')], f26: a.row[col(tKpi, 'Feu 2026')],
+        def: dr[col(tDic, 'Définition')], unite: norm(dr[col(tDic, 'Unité')]), vert: dr[col(tDic, 'Vert')], ambre: dr[col(tDic, 'Ambre')], rouge: dr[col(tDic, 'Rouge')], pourquoi: dr[col(tDic, 'Pourquoi il compte')],
+        sens: norm(sr[col(tSeu, 'Sens')]), sv: nombre(sr[col(tSeu, 'Seuil vert')]), sa: nombre(sr[col(tSeu, 'Seuil ambre')]) });
+    });
+  }
+  if (manque.length) throw new ErrUtil('Élément manquant : ' + manque.slice(0, 3).join(' ; ') + (manque.length > 3 ? ' … et ' + (manque.length - 3) + ' autre(s).' : '.'));
+  const params = new Map(); if (tPar) tPar.rows.forEach(r => params.set(String(r.row[col(tPar, 'Nom défini')]), nombre(r.row[col(tPar, 'Valeur')])));
+  const bl = p => bloc(gK, p);
+  const lis = (b, noms) => b ? b.rows.map(r => { const o = {}; Object.keys(noms).forEach(k => { const i = b.head[norm(noms[k])]; o[k] = i == null ? null : r[i]; }); return o; }) : [];
+  const radar = lis(bl('radar'), { lib: 'Radar · axe', s27: 'Score 2027', s26: 'Score 2026', cible: 'Cible' });
+  const funnel = lis(bl('entonnoir'), { lib: 'Entonnoir · étape (2027)', v: 'Valeur' });
+  const cascade = lis(bl('cascade'), { lib: 'Cascade · barre', d: 'Début', f: 'Fin', bp: 'Base positive', bn: 'Base négative', pp: 'Partie positive', pn: 'Partie négative' });
+  const gauge = lis(bl('jauge'), { lib: 'Jauge (2027)', v: 'Valeur', max: 'Maximum' });
+  const bullet = lis(bl('poste du cycle'), { lib: 'Poste du cycle de cash', v: 'Valeur 2027', seuil: 'Seuil vert' });
+  let message = ''; gM.forEach((r, i) => { if (norm(r[1]) === 'le message principal') { for (let k = i + 1; k < gM.length; k++) if (gM[k][1]) { message = String(gM[k][1]); break; } } });
+  const recos = []; gK.forEach(r => { if (typeof r[2] === 'string' && /^[1-3]\.\s/.test(r[2]) && recos.length < 3) recos.push(r[2]); });
+  let nbC = null, nbOk = null; gC.forEach(r => { const l = norm(r[2]); if (l.startsWith('nombre de controles')) nbC = nombre(r[3]); if (l.startsWith('controles conformes')) nbOk = nombre(r[3]); });
+  return { msg: message, statut: String(nv.get('STATUT_GLOBAL') == null ? '' : nv.get('STATUT_GLOBAL')).trim(), nbC, nbOk, tft, tftLignes, kpi, params, nv, radar, funnel, cascade, gauge, bullet, recos,
+    erreurs: COMPTE_ERREURS, formuleVide: FORMULE_SANS_VALEUR };
+}
+
+/* =====================================================================
+   4. CALCULS · une fonction simple par calcul (valeurs de référence)
+   ===================================================================== */
+const L = (D, c, a) => { const l = D.tft.get(c); return l ? (l[a || 'v27'] || 0) : 0; };
+const kpiDe = (D, c) => D.kpi.find(k => k.code === c);
+const ebitda = D => (D.funnel[0] && D.funnel[0].v) || 0;
+const calcConversion = D => L(D, 'OT') / ebitda(D);                       // K01
+const calcFcf = D => L(D, 'OT') + L(D, 'I1') + L(D, 'I2');                // K03
+const calcFcfLoyers = D => calcFcf(D) + L(D, 'F4') + L(D, 'F5');          // K04
+const calcCycle = D => kpiDe(D, 'K06').v27 + kpiDe(D, 'K07').v27 - kpiDe(D, 'K08').v27;   // K09
+const calcLevier = D => kpiDe(D, 'K10').v27 / ebitda(D);                  // K11
+const calcDscr = D => L(D, 'OT') / -(L(D, 'F2') + L(D, 'F3') + L(D, 'F4') + L(D, 'F5'));  // K13
+const calcDividendes = D => calcFcf(D) / -L(D, 'F6');                     // K14
+function controleCroise(D) {                                              // compare mes calculs au fichier : le fichier fait foi
+  const t = [['K01', calcConversion(D), .005], ['K03', calcFcf(D), 1], ['K04', calcFcfLoyers(D), 1], ['K09', calcCycle(D), .05], ['K11', calcLevier(D), .005], ['K13', calcDscr(D), .005], ['K14', calcDividendes(D), .005]];
+  return t.map(([c, mien, tol]) => { const f = kpiDe(D, c).v27; return { code: c, fichier: f, calcul: mien, ok: f != null && Math.abs(f - mien) <= tol }; });
+}
+function feu(f) { const s = norm(f); return s === 'vert' ? 'vert' : s === 'ambre' || s === 'orange' ? 'orange' : s === 'rouge' ? 'rouge' : 'none'; }
+const MOT = { vert: 'Vert', orange: 'Orange', rouge: 'Rouge', none: 'Sans seuil' }, GLYPHE = { vert: '✔', orange: '▲', rouge: '✖', none: '–' }, RANG = { none: 0, vert: 1, orange: 2, rouge: 3 };
+function feuFamille(D, fam) { return fam.kpis.map(c => feu(kpiDe(D, c).f27)).reduce((a, b) => RANG[b] > RANG[a] ? b : a, 'none'); }
+function aplatir(D) {                                                       // empreinte et différences
+  const m = new Map();
+  D.tft.forEach((l, c) => { m.set('t.' + c + '.27', l.v27); m.set('t.' + c + '.26', l.v26); });
+  D.kpi.forEach(k => ['v27', 'v26', 'f27', 'f26', 'sv', 'sa'].forEach(a => m.set('k.' + k.code + '.' + a, k[a])));
+  m.set('statut', D.statut); m.set('msg', D.msg); D.recos.forEach((r, i) => m.set('r' + i, r)); D.params.forEach((v, k) => m.set('p.' + k, v));
+  D.kpi.forEach(k => m.set('d.' + k.code, [k.def, k.vert, k.ambre, k.rouge, k.pourquoi].join('|')));
+  return m;
+}
+async function empreinte(txt) {
+  const buf = new TextEncoder().encode(txt);
+  if (window.crypto && crypto.subtle) { const d = await crypto.subtle.digest('SHA-256', buf); return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+  let x = 2166136261; buf.forEach(b => { x = Math.imul(x ^ b, 16777619); }); return 'f' + (x >>> 0).toString(16);
+}
+
+/* =====================================================================
+   5. AFFICHAGE · formats français, pages, menu
+   ===================================================================== */
+function nf(x, d, trim) {
+  if (x == null || isNaN(x)) return '—';
+  let s = Math.abs(x).toFixed(d); if (trim && s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  const p = s.split('.'), ent = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
+  return (x < 0 && Number(s) !== 0 ? '− ' : '') + ent + (p[1] ? ',' + p[1] : '');
+}
+function fmtU(v, unite) {
+  if (unite === 'dh') return { v: nf(v / 1000, 1, true), u: 'k MAD' };
+  if (unite === 'jours') return { v: nf(v, 1), u: 'j' };
+  if (unite === 'fois') return { v: nf(v, 2), u: '×' };
+  return { v: nf(v, 2), u: '' };
+}
+const txtU = (v, u) => { const f = fmtU(v, u); return f.v + (f.u ? ' ' + f.u : ''); };
+const txtVar = (v, u) => v == null ? '—' : (v > 0 ? '+ ' : '') + txtU(v, u);
+const prefereMoins = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const S = { data: null, route: 'tft', enabled: true, mode: null, handle: null, nom: '', derniere: null, verif: null, statut: 'init', raison: '', hash: '', sig: null, occupe: false, minuteur: null, anime: true, ouverts: new Set(), ecarts: [], charts: [] };
+const main = () => document.getElementById('main');
+function toast(txt, err) { const t = h('div', { class: 'toast' + (err ? ' err' : '') }, txt); document.getElementById('toasts').append(t); setTimeout(() => t.remove(), err ? 7000 : 4500); }
+function pastille(f, court) { return h('span', { class: 'pill ' + f }, h('span', { 'aria-hidden': 'true' }, GLYPHE[f]), h('span', { class: 'w' }, MOT[f])); }
+function monte(el, val, fmt) {                                              // chiffres qui montent
+  if (!S.anime || prefereMoins() || val == null) { el.textContent = fmt(val); return; }
+  const t0 = performance.now(), d = 700; el.textContent = fmt(0);
+  const pas = t => { const k = Math.min(1, (t - t0) / d); el.textContent = fmt(val * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(pas); else el.textContent = fmt(val); };
+  requestAnimationFrame(pas);
+}
+function sparkline(a, b) {                                                  // uniquement les années présentes dans le fichier
+  const pts = [a, b].filter(v => v != null), W = 200, H = 40, min = Math.min(...pts), max = Math.max(...pts);
+  const y = v => max === min ? H / 2 : H - 6 - (v - min) / (max - min) * (H - 12);
+  const xs = pts.length === 1 ? [W - 8] : [8, W - 8], c = pts.map((v, i) => xs[i] + ',' + y(v).toFixed(1));
+  const s = sv('svg', { class: 'spark', viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+  if (pts.length > 1) s.append(sv('polyline', { points: c.join(' '), fill: 'none', stroke: OR, 'stroke-width': '1.25', 'vector-effect': 'non-scaling-stroke' }));
+  s.append(sv('circle', { cx: xs[xs.length - 1], cy: y(pts[pts.length - 1]), r: 3, fill: OR })); return s;
+}
+function carteKpi(k) {
+  const f = feu(k.f27), g = fmtU(k.v27, k.unite), big = h('span', {}), ref = '#/k/' + k.code;
+  const c = h('article', { class: 'card kc', 'data-k': k.code },
+    h('div', { class: 'hd' }, h('h3', {}, h('a', { href: ref }, k.code + ' · ' + k.nom)), h('button', { class: 'info', type: 'button', title: 'Formule : ' + (k.formule || k.def || k.lib), 'aria-label': 'Formule de ' + k.nom + ' : ' + (k.formule || k.def || k.lib) }, 'i')),
+    h('div', { class: 'big' }, big, g.u ? h('span', { class: 'u' }, g.u) : null),
+    h('div', { class: 'sub2' }, h('span', { class: 'cap' }, '2026 : ', h('span', { class: 'num' }, k.v26 == null ? '—' : txtU(k.v26, k.unite))), h('span', { class: 'cap' }, 'Variation : ', h('span', { class: 'u' }, txtVar(k.var, k.unite))), h('span', { class: 'pill ' + f }, h('span', { 'aria-hidden': 'true' }, GLYPHE[f]), MOT[f])),
+    sparkline(k.v26, k.v27));
+  monte(big, k.v27, v => fmtU(v, k.unite).v); return c;
+}
+function carteFlux(titre, code) { const l = D().tft.get(code); return h('div', { class: 'card stat' }, h('span', { class: 'cap' }, titre + ' (' + code + ')'), h('span', { class: 'num' }, nf(l.v27 / 1000, 1, true), h('span', { class: 'u' }, ' k MAD')), h('span', { class: 'cap' }, '2026 : ', nf(l.v26 / 1000, 1, true), ' k MAD')); }
+const D = () => S.data;
+const chemin = r => r === 'tft' ? [['Situation TFT']] : r === 'fams' ? [['Situation TFT', '#/tft'], ['Les KPI par famille']] : null;
+function filAriane() {
+  const r = S.route, items = [['Situation TFT', '#/tft']];
+  if (r !== 'tft') items.push(['Les KPI par famille', '#/familles']);
+  if (r.startsWith('f:')) items.push([FAMILLES.find(f => f.id === r.slice(2)).nom]);
+  if (r.startsWith('k:')) { const k = kpiDe(D(), r.slice(2)), f = FAMILLES.find(x => x.kpis.includes(k.code)); items.push([f.nom, '#/f/' + f.id], [k.code + ' ' + k.nom]); }
+  if (r === 'tft') items.length = 1; if (r === 'fams') items[1] = ['Les KPI par famille'];
+  const n = h('nav', { class: 'crumb', 'aria-label': 'Fil d’Ariane' });
+  items.forEach((it, i) => { if (i) n.append(h('span', { 'aria-hidden': 'true' }, '→')); n.append(it[1] && i < items.length - 1 ? h('a', { href: it[1] }, it[0]) : h('span', { 'aria-current': 'page' }, it[0])); });
+  return n;
+}
+function lireRoute() {
+  const m = location.hash.replace(/^#\/?/, '').split('/'), id = m[1];
+  if (m[0] === 'familles') return 'fams';
+  if (m[0] === 'f' && FAMILLES.some(f => f.id === id)) return 'f:' + id;
+  if (m[0] === 'k' && FORMAT_ATTENDU.codesKPI.includes(id)) return 'k:' + id;
+  return 'tft';
+}
+function menu(hote, vol) {                                                  // 3 niveaux : Situation TFT → Famille → KPI
+  vider(hote);
+  const lien = (href, ic, txt, cur, extra) => h('a', { class: 'nl', href, 'aria-current': cur ? 'page' : null, title: txt }, ic ? icone(ic) : null, h('span', { class: 'lbl t' }, txt), extra);
+  const nav = h('nav', { 'aria-label': 'Écrans' });
+  nav.append(lien('#/tft', 'tft', 'Situation TFT', S.route === 'tft'), lien('#/familles', 'grille', 'Les KPI par famille', S.route === 'fams'));
+  if (S.data) FAMILLES.forEach(f => {
+    const ouvert = S.ouverts.has(f.id), ul = h('ul', { class: 'sub', id: (vol ? 'v' : 's') + 'sub-' + f.id, hidden: ouvert ? null : true });
+    f.kpis.forEach(c => { const k = kpiDe(D(), c); ul.append(h('li', {}, lien('#/k/' + c, null, c + ' ' + k.nom, S.route === 'k:' + c, pastille(feu(k.f27))))); });
+    const b = h('button', { class: 'exp lbl', type: 'button', 'aria-expanded': ouvert ? 'true' : 'false', 'aria-controls': ul.id, 'aria-label': 'Déplier ' + f.nom, onclick: e => { const o = e.currentTarget.getAttribute('aria-expanded') !== 'true'; o ? S.ouverts.add(f.id) : S.ouverts.delete(f.id); e.currentTarget.setAttribute('aria-expanded', o); ul.hidden = !o; } }, '▸');
+    nav.append(h('div', { class: 'fam' }, lien('#/f/' + f.id, f.ic, f.nom + ' (' + f.kpis.length + ' KPI)', S.route === 'f:' + f.id, pastille(feuFamille(D(), f))), b), ul);
+  });
+  hote.append(nav);
+}
+function page(titre, sous, ...contenu) { return h('div', { class: 'page' }, filAriane(), h('div', {}, h('h1', {}, titre), sous ? h('p', { class: 'msg', style: 'margin-top:16px' }, sous) : null), ...contenu); }
+function chartBox(titre, cls, id) { return h('section', { class: 'card' }, h('h2', { style: 'margin-bottom:16px' }, titre), h('div', { class: 'chart ' + (cls || ''), id })); }
+function pageTft() {
+  const d = D(), t = d.tft;
+  const bandeau = h('div', { class: 'grid3' }, carteFlux('Flux opérationnel', 'OT'), carteFlux('Flux d’investissement', 'IT'), carteFlux('Flux de financement', 'FT'));
+  const bande2 = h('div', { class: 'grid3' }, carteFlux('Variation de la trésorerie', 'V'), carteFlux('Trésorerie nette à l’ouverture', 'T0'), carteFlux('Trésorerie nette à la clôture', 'T1'));
+  const cartes = h('div', { class: 'grid2' }, CARTES_TFT.map(c => carteKpi(kpiDe(d, c))));
+  const gauges = h('section', { class: 'card' }, h('h2', { style: 'margin-bottom:16px' }, 'Jauges face aux cibles'), h('div', { class: 'grid3' }, [0, 1, 2].map(i => h('div', {}, h('div', { class: 'chart s', id: 'gj' + i }), h('p', { class: 'cap', id: 'gc' + i, style: 'text-align:center' })))));
+  const recos = h('section', { class: 'page' }, h('h2', {}, 'Trois recommandations au DG'), d.recos.length ? d.recos.map(r => h('div', { class: 'card reco' }, h('span', { class: 'num' }, r.slice(0, 2).replace('.', '')), h('p', {}, r.replace(/^\d\.\s*/, '')))) : pointsAttention(d));
+  const ecarts = S.ecarts.filter(e => !e.ok);
+  const pied = h('p', { class: 'cap' }, ecarts.length ? 'Écart de calcul signalé : ' + ecarts.map(e => e.code + ' (fichier ' + nf(e.fichier, 2) + ', recalcul ' + nf(e.calcul, 2) + ')').join(' ; ') + '. Le fichier fait foi.' : 'Contrôle croisé : ' + S.ecarts.length + ' KPI recalculés à partir du TFT, identiques au fichier.');
+  const fichierInfo = d.erreurs ? h('p', { class: 'cap' }, d.erreurs + ' cellule(s) en erreur traitée(s) comme vide(s).') : null;
+  return page('Situation TFT', d.msg, bandeau, bande2, cartes, chartBox('Cascade du cash : de la trésorerie 2026 à 2027', '', 'ch-casc'), chartBox('D’où vient l’argent, où il va', '', 'ch-sank'), gauges, chartBox('Entonnoir : de l’EBITDA au cash restant', 't', 'ch-fun'), recos, tableauTft(), pied, fichierInfo);
+}
+function pointsAttention(d) {                                               // règles simples si les recommandations manquent
+  const o = [], k = c => kpiDe(d, c);
+  if (k('K03').v27 <= 0) o.push('Le free cash-flow est de ' + txtU(k('K03').v27, 'dh') + ' : les investissements dépassent le cash d’exploitation.');
+  if (k('K11').f27 && feu(k('K11').f27) !== 'vert') o.push('La dette nette vaut ' + nf(k('K11').v27, 2) + ' × l’EBITDA : surveiller le plafond bancaire.');
+  if (feu(k('K09').f27) !== 'vert') o.push('Le cycle de cash est de ' + nf(k('K09').v27, 1) + ' jours : agir sur le poste le plus éloigné de son seuil vert.');
+  if (!o.length) o.push('Aucun point d’attention majeur ne ressort des chiffres du fichier.');
+  return o.map((r, i) => h('div', { class: 'card reco' }, h('span', { class: 'num' }, i + 1), h('p', {}, r)));
+}
+function tableauTft() {
+  const d = D(), tb = h('tbody', {});
+  d.tftLignes.forEach(l => {
+    if (!l.code) { tb.append(h('tr', { class: 'sec' }, h('td', { colspan: 3 }, l.lib))); return; }
+    tb.append(h('tr', { class: TOTAUX.has(l.code) ? 'tot' : null }, h('td', {}, l.lib), h('td', { class: 'n' }, l.v27 == null ? '—' : nf(l.v27 / 1000, 1, true)), h('td', { class: 'n' }, l.v26 == null ? '—' : nf(l.v26 / 1000, 1, true))));
+  });
+  return h('section', { class: 'card' }, h('div', { class: 'row', style: 'margin-bottom:16px;flex-wrap:wrap' }, h('h2', {}, 'Tableau des flux de trésorerie (méthode indirecte)'), h('button', { class: 'btn p', type: 'button', onclick: exporter }, icone('down'), 'Exporter vers Excel')),
+    h('table', {}, h('caption', { class: 'cap', style: 'text-align:left;padding-bottom:8px' }, 'En milliers de dirhams (k MAD)'), h('thead', {}, h('tr', {}, h('th', {}, 'Libellé'), h('th', { class: 'n' }, '2027'), h('th', { class: 'n' }, '2026'))), tb));
+}
+function exporter() {
+  const rows = [['Ligne', 'Libellé', '2027 (k MAD)', '2026 (k MAD)']];
+  D().tftLignes.forEach(l => rows.push([protegeExport(l.code || ''), protegeExport(l.lib), l.v27 == null ? '' : l.v27 / 1000, l.v26 == null ? '' : l.v26 / 1000]));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'TFT');
+  XLSX.writeFile(wb, 'TFT-Atlas-2027.xlsx'); toast('Export Excel prêt : TFT-Atlas-2027.xlsx');
+}
+function pageFamilles() {
+  const d = D();
+  return page('Les KPI par famille', 'Cinq familles, chacune au feu le plus sévère de ses KPI.',
+    h('div', { class: 'grid2' }, FAMILLES.map(f => h('a', { href: '#/f/' + f.id, class: 'card kc', style: 'text-decoration:none;display:block' }, h('div', { class: 'row' }, h('h3', {}, f.nom), pastille(feuFamille(d, f))), h('p', { class: 'cap', style: 'margin-top:8px' }, f.kpis.length + ' KPI : ' + f.kpis.join(' · '))))),
+    chartBox('Radar : score 2027 face à 2026 et à la cible', '', 'ch-radar'));
+}
+function pageFamille(id) {
+  const f = FAMILLES.find(x => x.id === id), d = D();
+  return page(f.nom, f.kpis.length + ' KPI · feu de la famille : ' + MOT[feuFamille(d, f)], h('div', { class: 'grid2' }, f.kpis.map(c => carteKpi(kpiDe(d, c)))), id === 'bfr' ? chartBox('Délais face au seuil vert (jours)', 's', 'ch-bullet') : null);
+}
+function pageKpi(code) {
+  const k = kpiDe(D(), code), f27 = feu(k.f27), f26 = feu(k.f26);
+  const ligne = (t, v) => h('div', { style: 'margin-bottom:16px' }, h('div', { class: 'cap' }, t), h('p', { style: 'color:var(--main)' }, v == null || v === '' ? '—' : String(v)));
+  return page(k.code + ' · ' + k.nom, null, h('div', { class: 'grid2' }, carteKpi(k),
+    h('section', { class: 'card' }, h('h2', { style: 'margin-bottom:16px' }, 'Dictionnaire'), h('div', { class: 'row', style: 'justify-content:flex-start;margin-bottom:16px;flex-wrap:wrap' }, h('span', { class: 'cap' }, 'Feu 2027'), pastille(f27), h('span', { class: 'cap' }, 'Feu 2026'), pastille(f26)),
+      ligne('Définition', k.def), ligne('Unité', k.unite === 'dh' ? 'DH' : k.unite), ligne('Seuil vert', k.vert), ligne('Seuil orange', k.ambre), ligne('Seuil rouge', k.rouge), ligne('Pourquoi il compte', k.pourquoi))));
+}
+function etatVide(msgTitre, msgTexte, avecBouton) {
+  return h('div', { class: 'page' }, h('h1', {}, 'Atlas Distribution SA'), h('div', { class: 'card drop', id: 'zone' }, h('h2', {}, msgTitre), h('p', {}, msgTexte), avecBouton ? [h('button', { class: 'btn p', type: 'button', onclick: connecter }, icone('upload'), 'Connecter mon fichier Excel'), h('button', { class: 'btn', type: 'button', onclick: () => document.getElementById('imp').click() }, 'Importer un fichier')] : null, h('p', { class: 'cap' }, 'Vous pouvez aussi glisser votre fichier dans cette zone.')));
+}
+function disjoncteur() {
+  const d = D(), x = (d.nbC != null && d.nbOk != null) ? d.nbC - d.nbOk : '?';
+  return h('div', { class: 'page' }, h('h1', {}, 'Données non fiables'), h('div', { class: 'card', role: 'alert' }, h('h2', {}, 'Données non fiables : ' + x + ' contrôles en écart sur ' + (d.nbC == null ? '?' : d.nbC)), h('p', { style: 'margin-top:16px' }, 'Statut du fichier : « ' + d.statut + ' ». Les chiffres sont masqués jusqu’à la correction du fichier Excel. Corrigez-le puis enregistrez : l’application se mettra à jour toute seule.')));
+}
+function rendre(opts) {
+  const m = main(), y = window.scrollY; S.charts.forEach(c => { try { c.dispose(); } catch (e) { /* ignoré */ } }); S.charts = [];
+  vider(m);
+  if (S.statut === 'init') { m.append(h('div', { class: 'page', 'aria-busy': 'true' }, h('h1', {}, 'Chargement…'), h('div', { class: 'sk' }), h('div', { class: 'sk' }))); }
+  else if (!S.data) {
+    if (S.statut === 'err') m.append(h('div', { class: 'page' }, h('h1', {}, 'Lecture impossible'), h('div', { class: 'card', role: 'alert' }, h('p', {}, S.raison), h('button', { class: 'btn p', type: 'button', style: 'margin-top:16px', onclick: demarrer }, 'Réessayer'))));
+    else m.append(etatVide(S.statut === 'recon' ? 'Reconnexion nécessaire' : 'Aucune donnée pour l’instant', S.statut === 'recon' ? 'Autorisez à nouveau l’accès à votre fichier Excel (lecture seule).' : 'Connectez votre fichier Excel : rien n’est envoyé sur Internet, tout reste dans votre navigateur.', S.statut !== 'recon'));
+  } else if (D().statut.toUpperCase() !== 'CONFORME') m.append(disjoncteur());
+  else {
+    const r = S.route;
+    m.append(r === 'tft' ? pageTft() : r === 'fams' ? pageFamilles() : r.startsWith('f:') ? pageFamille(r.slice(2)) : pageKpi(r.slice(2)));
+    dessinerGraphiques();
+  }
+  menu(document.getElementById('side-menu'), false); menu(document.getElementById('vol-menu'), true);
+  majTabs(); majSync(); S.anime = false; window.scrollTo(0, y);
+  if (opts && opts.flash && !prefereMoins()) opts.flash.forEach(c => document.querySelectorAll('[data-k="' + c + '"]').forEach(e => { e.classList.add('flash'); setTimeout(() => e.classList.remove('flash'), 2000); }));
+}
+
+/* =====================================================================
+   6. GRAPHIQUES · Apache ECharts (ECharts ne reçoit que des données de la page)
+   ===================================================================== */
+function graphique(id, option) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!window.echarts) { el.append(h('p', { class: 'cap' }, 'Graphique indisponible : la bibliothèque n’a pas pu être chargée.')); return; }
+  const c = echarts.init(el, null, { renderer: 'canvas' }); option.animation = !prefereMoins(); option.textStyle = { fontFamily: 'Inter, sans-serif', color: BLANC }; c.setOption(option); S.charts.push(c);
+}
+const nomCourt = s => String(s || '').split(' · ')[0];
+const kLabel = v => (v > 0 ? '+' : v < 0 ? '− ' : '') + nf(Math.abs(v) / 1000, 1, true) + ' k';
+function dessinerGraphiques() {
+  const d = D(), r = S.route;
+  if (r === 'tft') { cascade(d); sankey(d); jauges(d); entonnoir(d); }
+  if (r === 'fams') radar(d);
+  if (r === 'f:bfr') bullet(d);
+}
+function cascade(d) {
+  const c = d.cascade, n = c.length; if (!n) return;
+  const delta = c.map((x, i) => (i === 0 || i === n - 1) ? x.f : x.f - x.d), couleur = i => (i === 0 || i === n - 1) ? BLANC : delta[i] >= 0 ? OR : GRENAT;
+  const tr = { itemStyle: { color: 'transparent' } };
+  const base = cle => ({ type: 'bar', barWidth: '46%', data: c.map(x => ({ value: x[cle] || 0, itemStyle: tr.itemStyle })) });
+  const part = cle => ({ type: 'bar', barWidth: '46%', data: c.map((x, i) => ({ value: x[cle] || 0, itemStyle: { color: couleur(i) } })) });
+  const s = [Object.assign(base('bp'), { stack: 'pos' }), Object.assign(part('pp'), { stack: 'pos' }), Object.assign(base('bn'), { stack: 'neg' }), Object.assign(part('pn'), { stack: 'neg' })];
+  graphique('ch-casc', { grid: { left: 70, right: 16, top: 24, bottom: 70 }, tooltip: { show: false },
+    xAxis: { type: 'category', data: c.map((x, i) => nomCourt(x.lib) + '\n' + (i === 0 || i === n - 1 ? nf(x.f / 1000, 1, true) : kLabel(delta[i])) + ' k MAD'), axisLabel: { color: BLANC, interval: 0, fontSize: 12 }, axisLine: { lineStyle: { color: '#555' } } },
+    yAxis: { type: 'value', axisLabel: { color: OR, formatter: v => nf(v / 1000, 0) }, splitLine: { lineStyle: { color: 'rgba(255,255,255,.08)' } } }, series: s });
+}
+function sankey(d) {
+  const v = c => d.tft.get(c).v27 || 0, V = v('V'), src = [['Flux opérationnel', v('OT')], ['Emprunts reçus', v('F1')], [V < 0 ? 'Baisse de la trésorerie' : 'Autre', V < 0 ? -V : 0]].filter(x => x[1] > 0);
+  const use = [['Investissements', -v('IT')], ['Remboursements d’emprunts', -v('F2')], ['Intérêts payés', -v('F3')], ['Loyers IFRS 16', -(v('F4') + v('F5'))], ['Dividendes', -v('F6')], [V > 0 ? 'Hausse de la trésorerie' : 'Autre usage', V > 0 ? V : 0]].filter(x => x[1] > 0);
+  const nodes = src.map(x => ({ name: x[0], itemStyle: { color: OR } })).concat([{ name: 'Cash mobilisé', itemStyle: { color: BLANC } }], use.map(x => ({ name: x[0], itemStyle: { color: GRENAT } })));
+  const links = src.map(x => ({ source: x[0], target: 'Cash mobilisé', value: x[1] })).concat(use.map(x => ({ source: 'Cash mobilisé', target: x[0], value: x[1] })));
+  graphique('ch-sank', { tooltip: { trigger: 'item', formatter: p => (p.data.source ? p.data.source + ' → ' + p.data.target : p.name) + ' : ' + nf(p.value / 1000, 1, true) + ' k MAD' },
+    series: [{ type: 'sankey', left: 8, right: 150, top: 8, bottom: 8, nodeGap: 14, emphasis: { focus: 'adjacency' }, lineStyle: { color: 'gradient', opacity: .45 }, label: { color: BLANC, fontSize: 12, formatter: p => p.name + ' · ' + nf(p.value / 1000, 1, true) + ' k' }, data: nodes, links }] });
+}
+function jauges(d) {
+  const defs = [['K01', 'cible', 'PARAM_CIBLE_CONV', 'conversion'], ['K11', 'plafond', 'PARAM_PLAFOND', 'dette nette'], ['K13', 'seuil', 'PARAM_CIBLE_DSCR', 'couverture']];
+  defs.forEach(([code, mot, param, cle], i) => {
+    const k = kpiDe(d, code), g = d.gauge.find(x => norm(x.lib).startsWith(cle)) || {}, max = g.max || Math.max(k.v27 * 1.5, 1);
+    const cl = x => Math.min(1, Math.max(0, x / max)), bandes = k.sens === 'haut' ? [[cl(k.sa), '#FF6B6B'], [cl(k.sv), '#F5963A'], [1, '#4CC38A']] : [[cl(k.sv), '#4CC38A'], [cl(k.sa), '#F5963A'], [1, '#FF6B6B']];
+    const cible = d.params.get(param), cap = document.getElementById('gc' + i);
+    if (cap) cap.textContent = k.nom + ' · ' + mot + ' ' + nf(cible == null ? k.sv : cible, 2);
+    graphique('gj' + i, { series: [{ type: 'gauge', min: 0, max, radius: '92%', startAngle: 200, endAngle: -20, axisLine: { lineStyle: { width: 14, color: bandes } }, pointer: { width: 4, length: '62%', itemStyle: { color: BLANC } }, axisTick: { show: false }, splitLine: { show: false }, axisLabel: { color: OR, fontSize: 11, distance: 18, formatter: v => nf(v, 1, true) }, anchor: { show: true, size: 8, itemStyle: { color: BLANC } }, detail: { valueAnimation: !prefereMoins(), formatter: v => nf(v, 2) + (code === 'K01' ? '' : ' ×'), color: BLANC, fontFamily: 'Cinzel', fontSize: 26, offsetCenter: [0, '62%'] }, data: [{ value: k.v27 }] }] });
+  });
+}
+function entonnoir(d) {
+  const f = d.funnel; if (!f.length) return;
+  graphique('ch-fun', { tooltip: { show: false }, series: [{ type: 'funnel', left: '8%', width: '84%', top: 8, bottom: 8, sort: 'none', gap: 4, minSize: '18%', label: { color: '#000', fontSize: 13, formatter: p => nomCourt(p.name) + ' · ' + nf(p.value / 1000, 1, true) + ' k' }, itemStyle: { borderWidth: 0 }, data: f.map((x, i) => ({ name: x.lib, value: x.v, itemStyle: { color: OR, opacity: 1 - i * .18 } })) }] });
+}
+function radar(d) {
+  const r = d.radar; if (!r.length) return;
+  graphique('ch-radar', { tooltip: { show: false }, legend: { bottom: 0, textStyle: { color: BLANC } },
+    radar: { radius: '66%', indicator: r.map(x => ({ name: x.lib, max: 100 })), axisName: { color: BLANC }, splitLine: { lineStyle: { color: 'rgba(255,255,255,.15)' } }, splitArea: { show: false }, axisLine: { lineStyle: { color: 'rgba(255,255,255,.15)' } } },
+    series: [{ type: 'radar', data: [{ name: 'Score 2027', value: r.map(x => x.s27), lineStyle: { color: OR, width: 2 }, itemStyle: { color: OR }, areaStyle: { color: 'rgba(224,174,40,.25)' } }, { name: 'Score 2026', value: r.map(x => x.s26), lineStyle: { color: BLANC, type: 'dashed', width: 1.25 }, itemStyle: { color: BLANC } }, { name: 'Cible', value: r.map(() => 100), lineStyle: { color: GRENAT, width: 1.5 }, itemStyle: { color: GRENAT }, symbol: 'none' }] }] });
+}
+function bullet(d) {
+  const b = d.bullet; if (!b.length) return; const codes = ['K06', 'K07', 'K08'], coul = { vert: '#4CC38A', orange: '#F5963A', rouge: '#FF6B6B', none: OR };
+  const noms = b.map(x => String(x.lib).charAt(0).toUpperCase() + String(x.lib).slice(1));
+  graphique('ch-bullet', { grid: { left: 120, right: 40, top: 16, bottom: 28 }, tooltip: { show: false },
+    xAxis: { type: 'value', axisLabel: { color: OR }, splitLine: { lineStyle: { color: 'rgba(255,255,255,.08)' } } }, yAxis: { type: 'category', data: noms, inverse: true, axisLabel: { color: BLANC } },
+    series: [{ type: 'bar', barWidth: 16, data: b.map((x, i) => ({ value: x.v, itemStyle: { color: coul[feu(kpiDe(d, codes[i]).f27)] } })), label: { show: true, position: 'right', color: BLANC, formatter: p => nf(p.value, 1) + ' j' } }, { type: 'scatter', symbol: 'rect', symbolSize: [4, 34], z: 5, data: b.map(x => x.seuil), itemStyle: { color: BLANC } }] });
+}
+
+/* =====================================================================
+   7. SYNCHRONISATION · modes A (direct), B (en ligne), C (import)
+   ===================================================================== */
+const PEUT_DIRECT = typeof window.showOpenFilePicker === 'function';
+const LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname), HTTP = /^https?:$/.test(location.protocol);
+const dormir = ms => new Promise(r => setTimeout(r, ms));
+function bd() { return new Promise((ok, ko) => { const q = indexedDB.open('atlas-sync', 1); q.onupgradeneeded = () => q.result.createObjectStore('h'); q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error); }); }
+async function idb(op, cle, val) { const db = await bd(); return new Promise((ok, ko) => { const tx = db.transaction('h', 'readwrite'), s = tx.objectStore('h'), q = op === 'set' ? s.put(val, cle) : op === 'del' ? s.delete(cle) : s.get(cle); q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error); }); }
+function setStatut(st, raison) { S.statut = st; S.raison = raison || ''; majSync(); }
+function libMode() { return S.mode === 'direct' ? 'Direct (suivi du fichier)' : S.mode === 'online' ? 'En ligne (donnees.xlsx)' : S.mode === 'import' ? 'Import manuel' : '—'; }
+const heure = d => d ? d.getHours() + ' h ' + String(d.getMinutes()).padStart(2, '0') : '—';
+function texteStatut() {
+  const s = S.statut, il = S.verif ? Math.max(0, Math.round((Date.now() - S.verif) / 1000)) : 0;
+  if (!S.enabled && S.mode !== 'import') return 'En pause';
+  return s === 'ok' ? 'Synchronisé · mis à jour il y a ' + il + ' s' : s === 'read' ? 'Lecture en cours…' : s === 'recon' ? 'Reconnexion nécessaire' : s === 'err' ? 'Fichier illisible : dernières données conservées' : s === 'import' ? 'Import effectué' : s === 'pause' ? 'En pause' : 'Aucun fichier connecté';
+}
+const PANNEAUX = [];
+function creerSync(variante) {
+  const sw = h('button', { class: 'sw', type: 'button', role: 'switch', 'aria-checked': String(S.enabled), 'aria-label': 'Synchronisation', onclick: () => basculer(!S.enabled), onkeydown: e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); basculer(!S.enabled); } } });
+  const dot = h('span', { class: 'dot', 'aria-hidden': 'true' }), tx = h('span', { class: 'tx' }), dot2 = h('span', { class: 'dot', 'aria-hidden': 'true' });
+  const fic = h('div', {}), maj = h('div', {}), mod = h('div', {}), aide = h('div', { class: 'cap' });
+  const bC = h('button', { class: 'btn sm', type: 'button', onclick: connecter }, icone('upload'), 'Connecter mon fichier Excel'), bI = h('button', { class: 'btn sm', type: 'button', onclick: () => document.getElementById('imp').click() }, 'Importer un fichier');
+  const bR = h('button', { class: 'btn sm p', type: 'button', onclick: reconnecter }, 'Reconnecter'), bE = h('button', { class: 'btn sm', type: 'button', onclick: effacer }, 'Effacer mes données');
+  const el = h('section', { class: 'sync', 'aria-label': 'Synchronisation Excel' },
+    h('div', { class: 'mini', title: '', 'data-mini': '1' }, dot2),
+    h('div', { class: 'full' }, h('div', { class: 'row' }, h('strong', { style: 'color:var(--main);font-weight:400' }, 'Synchronisation'), sw), h('div', { class: 'row', style: 'justify-content:flex-start', role: 'status' }, dot, tx), h('div', { class: 'det' }, fic, maj, mod, aide), bC, bI, bR, bE));
+  const p = { el, sw, dot, dot2, tx, fic, maj, mod, aide, bC, bI, bR, bE, variante }; PANNEAUX.push(p); return el;
+}
+function majSync() {
+  PANNEAUX.forEach(p => {
+    const cls = 'st-' + (S.enabled || S.mode === 'import' ? S.statut : 'pause'); ['dot', 'dot2'].forEach(k => { p[k].className = 'dot'; }); p.el.className = 'sync ' + cls;
+    p.sw.setAttribute('aria-checked', String(S.enabled)); p.tx.textContent = texteStatut();
+    p.fic.textContent = 'Fichier : ' + (S.nom || '—'); p.maj.textContent = 'Dernière mise à jour : ' + heure(S.derniere); p.mod.textContent = 'Mode : ' + libMode();
+    p.aide.textContent = S.statut === 'err' ? S.raison : S.mode === 'import' || !PEUT_DIRECT ? 'Le suivi en direct fonctionne avec Chrome ou Edge sur ordinateur. Ici, importez à nouveau le fichier après chaque modification.' : S.mode === 'online' ? 'GitHub peut mettre jusqu’à 10 minutes pour publier une nouvelle version du fichier.' : '';
+    p.bC.hidden = !PEUT_DIRECT; p.bR.hidden = S.statut !== 'recon'; p.bE.hidden = !(S.handle || S.nom);
+    const mini = p.el.querySelector('[data-mini]'); if (mini) mini.title = texteStatut() + (S.nom ? ' · ' + S.nom : '');
+  });
+}
+function majTabs() {
+  const t = document.getElementById('tabs'); vider(t);
+  t.append(h('button', { type: 'button', 'aria-current': S.route === 'tft' ? 'page' : null, onclick: () => { fermerVolet(); location.hash = '#/tft'; } }, icone('tft'), 'Situation TFT'),
+    h('button', { type: 'button', 'aria-current': S.route !== 'tft' ? 'page' : null, 'aria-haspopup': 'dialog', onclick: () => document.getElementById('vol').classList.toggle('open') }, icone('grille'), 'Les KPI par famille'));
+}
+const fermerVolet = () => document.getElementById('vol').classList.remove('open');
+function basculer(on) {
+  S.enabled = on; try { localStorage.setItem('atlas_sync', on ? '1' : '0'); } catch (e) { /* stockage indisponible */ }
+  relancer(); if (on) { if (S.mode === 'direct' || S.mode === 'online') setStatut(S.handle || S.data ? 'read' : S.statut); tick(true); } else majSync();
+}
+function relancer() { clearInterval(S.minuteur); S.minuteur = null; if (!S.enabled) return; if (S.mode === 'direct') S.minuteur = setInterval(() => tick(false), 2000); else if (S.mode === 'online') S.minuteur = setInterval(() => tick(false), LOCAL ? 3000 : 60000); }
+async function tick(force) {
+  if ((!S.enabled && !force) || S.occupe) return; S.occupe = true;
+  try { if (S.mode === 'direct') await verifierDirect(force); else if (S.mode === 'online') await lireEnLigne(force); } catch (e) { /* géré dans les fonctions */ } finally { S.occupe = false; }
+}
+async function verifierDirect(force) {
+  let f; try { f = await S.handle.getFile(); } catch (e) { setStatut('recon', 'Le fichier est introuvable, déplacé ou l’autorisation a été retirée.'); return; }
+  S.verif = Date.now();
+  if (!force && S.sig && f.lastModified === S.sig.m && f.size === S.sig.s) { if (S.statut !== 'ok' && S.statut !== 'err') setStatut('ok'); majSync(); return; }
+  setStatut('read'); await dormir(700);                                   // Excel est en train d'enregistrer : on attend la stabilité
+  let f2; try { f2 = await S.handle.getFile(); } catch (e) { setStatut('recon', 'Le fichier est devenu inaccessible.'); return; }
+  if (f2.lastModified !== f.lastModified || f2.size !== f.size) { S.sig = null; return; }
+  let buf = null; for (let i = 0; i < 3 && !buf; i++) { try { buf = await f2.arrayBuffer(); } catch (e) { await dormir(330); } }
+  if (!buf) { echec('Le fichier est en cours d’enregistrement ou verrouillé.'); return; }
+  S.sig = { m: f2.lastModified, s: f2.size }; S.nom = f2.name; await traiter(buf, f2.name);
+}
+async function lireEnLigne(force) {
+  try { const r = await fetch('donnees.xlsx', { cache: 'no-cache' }); if (!r.ok) throw new Error('absent'); const buf = await r.arrayBuffer(); S.verif = Date.now(); S.nom = 'donnees.xlsx'; await traiter(buf, 'donnees.xlsx'); return true; }
+  catch (e) { if (S.data) echec('donnees.xlsx est introuvable pour le moment.'); return false; }
+}
+function echec(raison) {
+  S.verif = Date.now();
+  if (S.data) { setStatut('err', raison); toast(raison, true); } else { setStatut('err', raison); rendre(); }
+}
+async function traiter(buf, nom, importe) {
+  try {
+    garde(buf, nom);
+    const wb = XLSX.read(buf, { type: 'array', cellFormula: true, cellDates: true, cellHTML: false, bookVBA: false, codepage: 1252 });
+    const nouveau = extraire(wb);
+    if (nouveau.formuleVide) throw new ErrUtil('Ouvrez le fichier dans Excel et enregistrez-le pour calculer les formules.');
+    const plat = aplatir(nouveau), h2 = await empreinte(JSON.stringify(Array.from(plat.entries())));
+    S.verif = Date.now();
+    if (S.data && h2 === S.hash) { setStatut(importe ? 'import' : 'ok'); return; }
+    const avant = S.data ? aplatir(S.data) : null, modifs = [];
+    if (avant) plat.forEach((v, k) => { if (JSON.stringify(avant.get(k)) !== JSON.stringify(v)) modifs.push(k); });
+    S.data = nouveau; S.hash = h2; S.derniere = new Date(); S.ecarts = controleCroise(nouveau);
+    setStatut(importe ? 'import' : 'ok');
+    const kp = new Set(modifs.filter(k => k.startsWith('k.')).map(k => k.split('.')[1]));
+    rendre({ flash: Array.from(kp) });
+    if (avant) toast('Données mises à jour à ' + heure(S.derniere) + ' : ' + modifs.length + ' valeur' + (modifs.length > 1 ? 's' : '') + ' modifiée' + (modifs.length > 1 ? 's' : ''));
+    else toast('Fichier chargé : ' + nom);
+    if (S.ecarts.some(e => !e.ok)) toast('Écart entre le fichier et le recalcul : le fichier fait foi.', true);
+  } catch (e) { echec(e instanceof ErrUtil ? e.message : 'Le fichier n’a pas pu être lu.'); }
+}
+async function enregistrerPoignee(hd) { try { await idb('set', 'handle', hd); } catch (e) { /* facultatif */ } }
+async function connecter() {
+  if (!PEUT_DIRECT) { document.getElementById('imp').click(); return; }
+  try {
+    const [hd] = await window.showOpenFilePicker({ multiple: false, types: [{ description: 'Classeur Excel', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx', '.xlsm'], 'application/vnd.ms-excel': ['.xls'], 'text/csv': ['.csv'] } }] });
+    await brancher(hd);
+  } catch (e) { /* annulé par l'utilisateur */ }
+}
+async function brancher(hd) { S.handle = hd; S.mode = 'direct'; S.nom = hd.name; S.sig = null; await enregistrerPoignee(hd); relancer(); await tick(true); }
+async function reconnecter() {
+  try { const p = await S.handle.requestPermission({ mode: 'read' }); if (p === 'granted') { S.mode = 'direct'; S.sig = null; relancer(); await tick(true); } else setStatut('recon', 'Autorisation refusée.'); } catch (e) { setStatut('recon', 'Reconnexion impossible : choisissez à nouveau le fichier.'); }
+}
+async function importer(f) {
+  if (!f) return; S.mode = 'import'; S.nom = f.name; S.handle = null; relancer();
+  try { await traiter(await f.arrayBuffer(), f.name, true); } catch (e) { echec('Le fichier n’a pas pu être lu.'); }
+}
+async function effacer() { try { await idb('del', 'handle'); localStorage.removeItem('atlas_sync'); } catch (e) { /* ignoré */ } S.handle = null; S.sig = null; S.nom = S.data ? S.nom : ''; toast('Mémoire du fichier connecté effacée.'); majSync(); }
+function brancherDepot() {
+  document.addEventListener('dragover', e => { e.preventDefault(); });
+  document.addEventListener('drop', async e => {
+    e.preventDefault(); const it = e.dataTransfer && e.dataTransfer.items && e.dataTransfer.items[0]; if (!it) return;
+    try { if (it.getAsFileSystemHandle) { const hd = await it.getAsFileSystemHandle(); if (hd && hd.kind === 'file') { await brancher(hd); return; } } } catch (er) { /* repli sur l'import */ }
+    importer(e.dataTransfer.files[0]);
+  });
+  document.getElementById('imp').addEventListener('change', e => { importer(e.target.files[0]); e.target.value = ''; });
+}
+async function demarrer() {
+  S.statut = 'init'; rendre();
+  try { const hd = await idb('get', 'handle'); if (hd && PEUT_DIRECT) { S.handle = hd; S.nom = hd.name; S.mode = 'direct'; const p = await hd.queryPermission({ mode: 'read' }); if (p === 'granted') { relancer(); await tick(true); return; } setStatut('recon', 'Autorisez de nouveau l’accès au fichier.'); rendre(); return; } } catch (e) { /* pas de poignée */ }
+  if (HTTP) { S.mode = 'online'; if (await lireEnLigne(true)) { relancer(); return; } }
+  S.mode = PEUT_DIRECT ? null : 'import'; setStatut('none'); rendre();
+}
+function fond() {                                                          // particules reliées, très lentes, sans couleur
+  const cv = document.getElementById('fx'), cx = cv.getContext('2d'); if (!cx) return;
+  const petit = window.matchMedia('(max-width:760px)').matches; let W, H; const N = petit ? 0 : 46, P = [];
+  const taille = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; }; taille(); addEventListener('resize', taille);
+  for (let i = 0; i < N; i++) P.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .18, vy: (Math.random() - .5) * .18 });
+  const pas = () => { cx.clearRect(0, 0, W, H); P.forEach(p => { p.x = (p.x + p.vx + W) % W; p.y = (p.y + p.vy + H) % H; cx.fillStyle = 'rgba(255,255,255,.18)'; cx.beginPath(); cx.arc(p.x, p.y, 1.4, 0, 6.3); cx.fill(); });
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) { const dx = P[i].x - P[j].x, dy = P[i].y - P[j].y, dd = dx * dx + dy * dy; if (dd < 22000) { cx.strokeStyle = 'rgba(255,255,255,' + (.09 * (1 - dd / 22000)).toFixed(3) + ')'; cx.beginPath(); cx.moveTo(P[i].x, P[i].y); cx.lineTo(P[j].x, P[j].y); cx.stroke(); } }
+    if (!prefereMoins()) requestAnimationFrame(pas); };
+  if (N && !prefereMoins()) requestAnimationFrame(pas);
+}
+function init() {
+  try { S.enabled = localStorage.getItem('atlas_sync') !== '0'; } catch (e) { S.enabled = true; }
+  const side = document.getElementById('side');
+  side.append(h('div', { class: 'brand' }, icone('coin'), h('span', { class: 'lbl' }, 'ATLAS')), h('div', { id: 'side-menu' }), creerSync('menu'));
+  document.getElementById('mband').append(creerSync('bande'));
+  document.getElementById('vol').append(h('div', { id: 'vol-menu' }));
+  document.getElementById('vol').addEventListener('click', e => { if (e.target.closest('a')) fermerVolet(); });
+  S.route = lireRoute(); brancherDepot(); fond();
+  addEventListener('hashchange', () => { S.route = lireRoute(); S.anime = true; if (S.data) { rendre(); window.scrollTo(0, 0); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && S.enabled) tick(false); });
+  setInterval(() => { if (S.statut === 'ok') majSync(); }, 1000);
+  addEventListener('resize', () => S.charts.forEach(c => { try { c.resize(); } catch (e) { /* ignoré */ } }));
+  demarrer();
+}
+if (!EN_CADRE) init();
+</script>
+</body>
+</html>
